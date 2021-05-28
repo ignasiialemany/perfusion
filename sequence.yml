@@ -1,0 +1,33 @@
+sequence:
+
+  # pulse sequence type name
+  # all names (except 'dummy') are searched in the config file for their specification
+  type: STEAM # dummy sequence builds N_t times dt_max(1)
+  #type: PGSE
+  #PGSE:
+  # ... # this would contain the parameters for the sequence PGSE
+
+  gamma: 1    #267.522190  # rad/ms/mT
+
+  # number of time steps
+  N_t: 1000
+
+  STEAM:
+    Gmax: 35.690e-06 #mT/micrometer
+    Delta: 1000
+    epsilon: 0.595
+    delta: 0.977
+    alpha90: 0.002212
+    alphaRO: 0.0053 # = 0.012141 / 2 - 0.000749
+  PGSE:
+    Gmax: 40.572e-06 #mT/micrometer
+    Delta: 20.547
+    epsilon: 0.676
+    delta: 9.921
+    alpha90: 0.001132
+    alphaRO: 0.0064 # = 0.012141 / 2 + 0.000299
+
+  # time step limit [dt_free, dt_grad]
+  dt_max:
+    - 0.01 # during gradient-off (free) ms
+    - 0.001 # during gradient-on ms
