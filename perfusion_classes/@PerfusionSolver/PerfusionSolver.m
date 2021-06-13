@@ -38,13 +38,6 @@ classdef PerfusionSolver < handle
             obj.inputs.T = T;
         end
         
-        function [obj] = setCapillary(obj,length_distribution,zenith_distribution)
-            
-            
-           
-            
-            
-        end
         function [obj] = setLengthDistribution(obj,distribution,varargin)
             if strcmp(distribution,'Weibull')
                 obj.length_func = @(x) weibull(x,obj.average_length,obj.sigma_length);
@@ -72,10 +65,10 @@ classdef PerfusionSolver < handle
             gamma = 267.5221900;
             if strcmp(varargin{1},"b-value")
                 b_value = varargin{2};
-                Gmax = sqrt(b_value/(obj.inputs.T^3*obj.inputs.gradient.a^2*gamma^2));  
+                Gmax = sqrt(b_value/(obj.inputs.T^3*obj.inputs.gradient.a^2*gamma^2));
             elseif strcmp(varargin{1},"Gmax")
                 Gmax = varargin{2};
-                b_value = gamma^2*Gmax^2*obj.inputs.T^3*obj.inputs.gradient.a^2;                
+                b_value = gamma^2*Gmax^2*obj.inputs.T^3*obj.inputs.gradient.a^2;
             else
                 error("Use either 'b-value' or 'Gmax' a second parameter followed by its value");
             end

@@ -16,7 +16,7 @@ elseif strcmp(Z_distribution,'Isotropic')
 else
     fprintf("This angle distribution has not been implemented yet");
 end
-            
+
 end
 
 function [direction] = vonmises(stream,mean_direction,k)
@@ -47,12 +47,12 @@ end
 
 function [L] = weibull(stream,average,sigma)
 %https://journals.ametsoc.org/view/journals/apme/17/3/1520-0450_1978_017_0350_mfewsf_2_0_co_2.xml?tab_body=pdf
-    rnd_value = rand(stream);
-    x=linspace(0,600,10000);
-    k = (sigma/average)^(-1.086); %Shape factor
-    c = average/(gamma(1+1/k)); %Scale factor
-    cfd = wblcdf(x,c,k);
-	L = interp1(cfd,x,rnd_value*0.999);    
+rnd_value = rand(stream);
+x=linspace(0,600,10000);
+k = (sigma/average)^(-1.086); %Shape factor
+c = average/(gamma(1+1/k)); %Scale factor
+cfd = wblcdf(x,c,k);
+L = interp1(cfd,x,rnd_value*0.999);
 end
 
 function [direction] = isotropic(x)
