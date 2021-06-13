@@ -5,15 +5,14 @@ classdef PerfusionSolver < handle
     
     properties(Access = public)
         length_func;
-        zenith_func;
-        azimuth_func;
+        direction_func;
     end
     
     properties(Access = private)
         inputs=PerfusionArguments();
         average_length=60;
         sigma_length=40;
-        k_anisotropy=3.25;
+        k_anisotropy=10;
     end
     
     methods(Access=public)
@@ -39,6 +38,13 @@ classdef PerfusionSolver < handle
             obj.inputs.T = T;
         end
         
+        function [obj] = setCapillary(obj,length_distribution,zenith_distribution)
+            
+            
+           
+            
+            
+        end
         function [obj] = setLengthDistribution(obj,distribution,varargin)
             if strcmp(distribution,'Weibull')
                 obj.length_func = @(x) weibull(x,obj.average_length,obj.sigma_length);
@@ -80,5 +86,6 @@ classdef PerfusionSolver < handle
     
     methods(Access=public)
         [phase,capillaries] = computePerfusion(obj,execution_mode);
+        [obj] = setCapillaryDistributions(obj,L_distribution,Z_distribution)
     end
 end

@@ -3,7 +3,7 @@ classdef PerfusionArguments
     properties(Access = public)
         n_particles = 1000;
         init_pos;
-        velocity_value = 0.4;
+        velocity_value = 0.5;
         gradient = struct();
         T=1;
         G=1;

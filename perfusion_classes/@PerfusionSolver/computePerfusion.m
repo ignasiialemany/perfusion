@@ -12,9 +12,9 @@ v = inputs.velocity_value;
 
 %Output
 phase = zeros(size(pos));
-capillaries=struct();
-capillaries.length(obj.inputs.n_particles)=CStack();
-capillaries.dir(obj.inputs.n_particles)=CStack();
+capillary_info=struct();
+capillary_info.direction = [];
+capillaries(1,inputs.n_particles)=capillary_info();
 
 %Parallel code, create workers if not initialized.
 if strcmp(execution_mode,"parallel")
@@ -35,7 +35,8 @@ if strcmp(execution_mode,"parallel")
         stream = RandStream.create('mlfg6331_64', 'Seed', seed, ...
             'NumStreams', num_streams, 'StreamIndices', i);
         pos_particle = pos(i,:);
-        [phase(i,:)] = phase_one_particle(obj,stream,pos_particle,T,v,dt,gG);
+        [phase(i,:),capillary_directions] = phase_one_particle(obj,stream,pos_particle,T,v,dt,gG);
+        capillaries(1,i).direction = capillary_directions;
     end
 else
     %Loop
@@ -44,25 +45,29 @@ else
         stream = RandStream.create('mlfg6331_64', 'Seed', seed, ...
             'NumStreams', num_streams, 'StreamIndices', i);
         pos_particle = pos(i,:);
-        [phase(i,:),capillaries.length(i),capillaries.dir(i)] = phase_one_particle(obj,stream,pos_particle,T,v,dt,gG);
+        [phase(i,:),capillary_directions] = phase_one_particle(obj,stream,pos_particle,T,v,dt,gG);
+        capillaries(1,i).direction = capillary_directions;
     end
     
 end
 phase = phase .* (1/inputs.gradient.a);
 end
 
-function [phase,capillary_length,capillary_dir] = phase_one_particle(obj,stream,pos,T,v,dt,gG)
+function [phase,capillary_directions] = phase_one_particle(obj,stream,pos,T,v,dt,gG)
 t_init=0;
 t_end=0;
-capillary_length=CStack();
-capillary_dir=CStack();
+capillary_directions=[];
 phase=zeros(1,3);
 while(t_end<T)
     
     %Compute capillary segment
-    length_value = obj.length_func(rand(stream));
-    zenith_value = obj.zenith_func(rand(stream),0);
-    azimuth_value = obj.azimuth_func(rand(stream));
+    
+    length_value = obj.length_func(stream);
+    dir1 = 0;
+    dir2 = 1;
+    dir3 = 0;
+    %[dir1,dir2,dir3] = sph2cart(deg2rad(90.),deg2rad(0),1);
+    direction = obj.direction_func(stream,[dir1,dir2,dir3]);
     
     %Add randomness to first capillary segment
     if eq(t_init,0)
@@ -73,24 +78,19 @@ while(t_end<T)
     length_value = min(length_value,v*(t_end-t_init));
     
     %Compute direction and phase
-    [delta_pos,direction] = compute_pos(length_value,zenith_value,azimuth_value);
+    delta_pos = length_value * direction;
     pos = pos + delta_pos;
     phase = phase + compute_phase(t_init/T,t_end/T,dt,gG,direction);
     t_init = t_end;
     
     %Store values to stack
-    capillary_length.push(length_value);
-    capillary_dir.push(direction);
+    capillary_directions=[capillary_directions;direction];
 end
 end
 
-function [delta_pos,direction] = compute_pos(length,zenith,azimuth)
-x = length .* sin(zenith) .* cos(azimuth);
-y = length .* sin(zenith) .* sin(azimuth);
-z = length .* cos(zenith);
-delta_pos = [x,y,z];
-direction = delta_pos/norm(delta_pos);
-end
+% function [delta_pos] = compute_pos(length,direction)
+% direction = delta_pos/norm(delta_pos);
+% end
 
 function [phi] = compute_phase(s_1,s_2,dt,gG,v_dir)
 
