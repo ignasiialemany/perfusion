@@ -26,7 +26,7 @@ classdef PerfusionArguments
         
         %Blood flow velocity value
         function obj = set.velocity_value(obj,velocity_value)
-            validatattributes( velocity_value, { 'numeric' }, {'finite','scalar'});
+            validateattributes( velocity_value, { 'numeric' }, {'finite','scalar'});
             obj.velocity_value = velocity_value;
         end
         

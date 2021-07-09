@@ -12,7 +12,6 @@ classdef PerfusionSolver < handle
         inputs=PerfusionArguments();
         average_length=60;
         sigma_length=40;
-        k_anisotropy=10;
     end
     
     methods(Access=public)
@@ -38,29 +37,6 @@ classdef PerfusionSolver < handle
             obj.inputs.T = T;
         end
         
-        function [obj] = setLengthDistribution(obj,distribution,varargin)
-            if strcmp(distribution,'Weibull')
-                obj.length_func = @(x) weibull(x,obj.average_length,obj.sigma_length);
-            elseif strcmp(distribution,'Constant')
-                N=varargin{1};
-                obj.length_func = @(x) (obj.inputs.T * obj.inputs.velocity_value)/N;
-            else
-                fprintf("This length distribution has not been implemented yet");
-            end
-        end
-        
-        function [obj] = setAnglesDistributions(obj,distribution)
-            if strcmp(distribution,'Anisotropic')
-                obj.zenith_func = @(x,mean) vonmises(x,mean,obj.k_anisotropy);
-                obj.azimuth_func = @(x) 2*pi*x;
-            elseif strcmp(distribution,'Isotropic')
-                obj.zenith_func = @(x,mean) acos(-1+2*x);
-                obj.azimuth_func = @(x) 2*pi*x;
-            else
-                fprintf("This angle distribution has not been implemented yet");
-            end
-        end
-        
         function [real_phase,b_value,Gmax] = computePhase(obj,normalized_phase,varargin)
             gamma = 267.5221900;
             if strcmp(varargin{1},"b-value")
@@ -75,10 +51,14 @@ classdef PerfusionSolver < handle
             real_phase = obj.inputs.velocity_value * sqrt(b_value*obj.inputs.T) .* normalized_phase;
             
         end
+        
+        function []=setVelocityValue(obj,velocity_value)
+            obj.inputs.velocity_value = velocity_value;
+        end
     end
     
     methods(Access=public)
         [phase,capillaries] = computePerfusion(obj,execution_mode);
-        [obj] = setCapillaryDistributions(obj,L_distribution,Z_distribution)
+        [obj] = setCapillaryDistributions(obj,L_distribution,Z_distribution,varargin)
     end
 end
