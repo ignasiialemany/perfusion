@@ -61,12 +61,14 @@ phase=zeros(1,3);
 while(t_end<T)
     
     %Compute capillary segment
-    
     length_value = obj.length_func(stream);
-    dir1 = 0;
-    dir2 = 1;
-    dir3 = 0;
-    %[dir1,dir2,dir3] = sph2cart(deg2rad(90.),deg2rad(0),1);
+    
+    %Compute zenith angle according to y_spacing / Virtual tissue
+    %recreation
+    y_spacing = 392.04; %y-spacing of block 
+    block_index = floor(pos(2)/y_spacing);
+    angle = pi/2 - deg2rad(3.9204)*block_index;
+    [dir1,dir2,dir3] = sph2cart(deg2rad(90.),angle,1);
     direction = obj.direction_func(stream,[dir1,dir2,dir3]);
     
     %Add randomness to first capillary segment
@@ -84,7 +86,7 @@ while(t_end<T)
     t_init = t_end;
     
     %Store values to stack
-    capillary_directions=[capillary_directions;direction];
+    capillary_directions=[capillary_directions;length_value*direction];
 end
 end
 
