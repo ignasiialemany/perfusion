@@ -9,14 +9,55 @@ else
     fprintf("This length distribution has not been implemented yet");
 end
 
-if strcmp(Z_distribution,'Anisotropic')
-    obj.direction_func = @(stream,mean_direction) vonmises(stream,mean_direction,obj.k_anisotropy);
+if strcmp(Z_distribution,'Anisotropic-Watson')
+    if strcmp(L_distribution,'Constant')
+        k_constant = varargin{2};
+    else
+        k_constant = varargin{1};
+    end
+    obj.direction_func = @(stream,mean_direction) watson(stream,mean_direction,k_constant);
+elseif strcmp(Z_distribution,'Anisotropic-VonMises')
+    if strcmp(L_distribution,'Constant')
+        k_constant = varargin{2};
+    else
+        k_constant = varargin{1};
+    end
+    obj.direction_func = @(stream,mean_direction) vonmises(stream,mean_direction,k_constant);
 elseif strcmp(Z_distribution,'Isotropic')
-    obj.direction_func = @(x,mean_direction) isotropic(x);
+    obj.direction_func = @(stream,mean_direction) isotropic(stream);
 else
     fprintf("This angle distribution has not been implemented yet");
 end
 
+end
+
+
+function [direction] = watson(stream,mean_direction,k)
+
+[phi_0,theta_0,~] = cart2sph(mean_direction(1),mean_direction(2),mean_direction(3));
+theta_0 = pi/2 - theta_0;
+R_z = [cos(-phi_0) -sin(-phi_0) 0; sin(-phi_0) cos(-phi_0) 0; 0 0 1];
+R_y = [cos(-theta_0) 0 sin(-theta_0) ; 0 1 0; -sin(-theta_0) 0 cos(-theta_0)];
+R = R_y*R_z;
+
+x=linspace(0,1,10000);
+t=x.^2;
+int_k = trapz(x,exp(2*k*t));
+
+theta = linspace(0,pi/2,10000);
+p_theta = (2*pi*int_k)^-1 .* sin(theta) .* exp(2*k*cos(theta).^2);
+p_theta = p_theta/trapz(theta,p_theta);
+cfd_theta = cumtrapz(theta,p_theta);
+
+zenith = interp1(cfd_theta,theta,rand(stream));
+azimuth = rand(stream)*2*pi;
+xp = 1 .* sin(zenith) .* cos(azimuth);
+yp = 1 .* sin(zenith) .* sin(azimuth);
+zp = 1 .* cos(zenith);
+
+%Directions on cartesian axis XYZ
+direction = inv(R) * [xp;yp;zp];
+direction = direction' / norm(direction');
 end
 
 function [direction] = vonmises(stream,mean_direction,k)
@@ -55,11 +96,7 @@ cfd = wblcdf(x,c,k);
 L = interp1(cfd,x,rnd_value*0.999);
 end
 
-function [direction] = isotropic(x)
-zenith = acos(-1+2*x);
-azimuth = 2*pi*x;
-xp = 1 .* sin(zenith) .* cos(azimuth);
-yp = 1 .* sin(zenith) .* sin(azimuth);
-zp = 1 .* cos(zenith);
-direction = [xp yp zp];
+function [direction] = isotropic(stream)
+direction = randn(stream,1,3);
+direction = direction/norm(direction);
 end
