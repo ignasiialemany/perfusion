@@ -68,7 +68,11 @@ while(t_end<T)
     y_spacing = 392.04; %y-spacing of block 
     block_index = floor(pos(2)/y_spacing);
     angle = pi/2 - deg2rad(3.9204)*block_index;
-    [dir1,dir2,dir3] = sph2cart(deg2rad(90.),angle,1);
+    
+    %Get the mean fibre direction. Azimuth angle is not important is set to
+    %0
+    default_azimuth=0.
+    [dir1,dir2,dir3] = sph2cart(deg2rad(default_azimuth),angle,1);
     direction = obj.direction_func(stream,[dir1,dir2,dir3]);
     
     %Add randomness to first capillary segment
