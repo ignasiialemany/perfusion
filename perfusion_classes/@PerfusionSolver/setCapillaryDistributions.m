@@ -25,6 +25,8 @@ elseif strcmp(Z_distribution,'Anisotropic-VonMises')
     obj.direction_func = @(stream,mean_direction) vonmises(stream,mean_direction,k_constant);
 elseif strcmp(Z_distribution,'Isotropic')
     obj.direction_func = @(stream,mean_direction) isotropic(stream);
+elseif strcmp(Z_distribution,'Mean_Direction')
+    obj.direction_func = @(stream,mean_direction) mean_direction;
 else
     fprintf("This angle distribution has not been implemented yet");
 end
@@ -49,7 +51,9 @@ p_theta = (2*pi*int_k)^-1 .* sin(theta) .* exp(2*k*cos(theta).^2);
 p_theta = p_theta/trapz(theta,p_theta);
 cfd_theta = cumtrapz(theta,p_theta);
 
-zenith = interp1(cfd_theta,theta,rand(stream));
+[cfd_theta,index] = unique(cfd_theta);
+
+zenith = interp1(cfd_theta,theta(index),rand(stream));
 azimuth = rand(stream)*2*pi;
 xp = 1 .* sin(zenith) .* cos(azimuth);
 yp = 1 .* sin(zenith) .* sin(azimuth);
@@ -71,11 +75,13 @@ R_y = [cos(-theta_0) 0 sin(-theta_0) ; 0 1 0; -sin(-theta_0) 0 cos(-theta_0)];
 R = R_y*R_z;
 
 theta = linspace(0,pi,10000);
-p_theta = (k)/(2*sinh(k)).*exp(k.*cos(theta)).*sin(theta);
+p_theta = (k)/(4*pi*sinh(k)).*exp(k.*cos(theta));
+p_theta = p_theta/trapz(theta,p_theta);
 cfd_theta = cumtrapz(theta,p_theta);
 
-%Direction in XYZ'
-zenith = interp1(cfd_theta,theta,rand(stream));
+[cfd_theta,index] = unique(cfd_theta);
+
+zenith = interp1(cfd_theta,theta(index),rand(stream));
 azimuth = rand(stream)*2*pi;
 xp = 1 .* sin(zenith) .* cos(azimuth);
 yp = 1 .* sin(zenith) .* sin(azimuth);
