@@ -17,17 +17,26 @@ sequence:
     Delta: 1000
     epsilon: 0.595
     delta: 0.977
-    alpha90: 0.002212
-    alphaRO: 0.0053 # = 0.012141 / 2 - 0.000749
+    alpha90: 2.212
+    alphaRO: 5.3 # = 0.012141 / 2 - 0.000749
+
   PGSE:
     Gmax: 40.572e-06 #mT/micrometer
     Delta: 20.547
     epsilon: 0.676
     delta: 9.921
-    alpha90: 0.001132
-    alphaRO: 0.0064 # = 0.012141 / 2 + 0.000299
+    alpha90: 1.132
+    alphaRO: 6.4 # = 0.012141 / 2 + 0.000299
+
+  MCSE:
+    Gmax: 39.478e-06 #mT/micrometer
+    epsilon: 0.661
+    delta1: 7.819
+    delta2: 16.299
+    alpha90: 1.272
+    alphaRO: 6.8  #0.012141 / 2 + 0.000749
 
   # time step limit [dt_free, dt_grad]
   dt_max:
-    - 0.01 # during gradient-off (free) ms
-    - 0.001 # during gradient-on ms
+    - 0.1 # during gradient-off (free) ms
+    - 0.01 # during gradient-on ms
