@@ -71,7 +71,7 @@ while(t_end<T)
     
     %Get the mean fibre direction. Azimuth angle is not important is set to
     %0
-    default_azimuth=0.
+    default_azimuth=0.;
     [dir1,dir2,dir3] = sph2cart(deg2rad(default_azimuth),angle,1);
     direction = obj.direction_func(stream,[dir1,dir2,dir3]);
     
